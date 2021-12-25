@@ -203,7 +203,11 @@ public class TiBluetoothPeripheralProxy extends KrollProxy {
   @Kroll.getProperty
   @Kroll.method
   public Object[] getServices() {
-    return services.toArray();
+    if (services == null) {
+      return new Object[0];
+    } else {
+      return services.toArray();
+    }
   }
 
   @Kroll.method
@@ -227,7 +231,12 @@ public class TiBluetoothPeripheralProxy extends KrollProxy {
     BluetoothGattCharacteristic characteristic =
         tiBluetoothCharacteristicProxy.getCharacteristic();
 
-    characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+    if (writeType == BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE || writeType == BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT) {
+      characteristic.setWriteType(writeType);
+    } else {
+      characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+    }
+
     characteristic.setValue(value.getBytes());
     bluetoothGatt.writeCharacteristic(characteristic);
   }
