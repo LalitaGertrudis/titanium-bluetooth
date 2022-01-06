@@ -21,6 +21,7 @@ import ti.bluetooth.TiBluetoothModule;
 import ti.bluetooth.gatt.TiBluetoothCharacteristicProxy;
 import ti.bluetooth.gatt.TiBluetoothServiceProxy;
 import ti.bluetooth.listener.OnPeripheralConnectionStateChangedListener;
+import android.util.Base64;
 
 @Kroll.proxy(parentModule = TiBluetoothModule.class)
 public class TiBluetoothPeripheralProxy extends KrollProxy {
@@ -51,7 +52,7 @@ public class TiBluetoothPeripheralProxy extends KrollProxy {
                     final boolean notifyOnDisconnection,
                     final OnPeripheralConnectionStateChangedListener
                         onPeripheralConnectionStateChangedListener) {
-    bluetoothDevice.connectGatt(context, false, new BluetoothGattCallback() {
+      bluetoothDevice.connectGatt(context, false, new BluetoothGattCallback() {
       @Override
       public void onConnectionStateChange(BluetoothGatt gatt, int status,
                                           int newState) {
@@ -110,6 +111,17 @@ public class TiBluetoothPeripheralProxy extends KrollProxy {
         firePeripheralEvent(DID_READ_VALUE_FOR_CHARACTERISTIC,
                             TiBluetoothPeripheralProxy.this, null,
                             new TiBluetoothCharacteristicProxy(characteristic));
+
+
+          final byte[] data = characteristic.getValue();
+          if (data != null && data.length > 0) {
+              final StringBuilder stringBuilder = new StringBuilder(data.length);
+              for(byte byteChar : data) {
+                stringBuilder.append(String.format("%02X ", byteChar));
+              }
+
+              Log.d("Read", stringBuilder.toString());
+          }
       }
 
       @Override
@@ -121,6 +133,16 @@ public class TiBluetoothPeripheralProxy extends KrollProxy {
         firePeripheralEvent(DID_UPDATE_VALUE_FOR_CHARACTERISTIC,
                             TiBluetoothPeripheralProxy.this, null,
                             new TiBluetoothCharacteristicProxy(characteristic));
+
+        final byte[] data = characteristic.getValue();
+        if (data != null && data.length > 0) {
+            final StringBuilder stringBuilder = new StringBuilder(data.length);
+            for(byte byteChar : data) {
+              stringBuilder.append(String.format("%02X ", byteChar));
+            }
+
+            Log.d("Changed", stringBuilder.toString());
+        }
       }
     });
   }
@@ -231,13 +253,18 @@ public class TiBluetoothPeripheralProxy extends KrollProxy {
     BluetoothGattCharacteristic characteristic =
         tiBluetoothCharacteristicProxy.getCharacteristic();
 
-    if (writeType == BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE || writeType == BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT) {
-      characteristic.setWriteType(writeType);
-    } else {
-      characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
-    }
-
+    characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
     characteristic.setValue(value.getBytes());
+    bluetoothGatt.writeCharacteristic(characteristic);
+  }
+
+  @Kroll.method
+  public void writeBase64ForCharacteristic(String base64, TiBluetoothCharacteristicProxy tiBluetoothCharacteristicProxy) {
+    BluetoothGattCharacteristic characteristic =
+        tiBluetoothCharacteristicProxy.getCharacteristic();
+
+    characteristic.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+    characteristic.setValue(Base64.decode(base64, Base64.NO_WRAP));
     bluetoothGatt.writeCharacteristic(characteristic);
   }
 }

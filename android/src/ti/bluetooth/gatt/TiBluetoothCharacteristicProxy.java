@@ -6,6 +6,7 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
 import ti.bluetooth.TiBluetoothModule;
 import org.appcelerator.kroll.common.Log;
+import android.util.Base64;
 
 @Kroll.proxy(parentModule = TiBluetoothModule.class)
 public class TiBluetoothCharacteristicProxy extends KrollProxy {
@@ -31,6 +32,19 @@ public class TiBluetoothCharacteristicProxy extends KrollProxy {
           } else {
               return TiBlob.blobFromData(characteristic.getValue());
           }
+    }
+  }
+
+  @Kroll.getProperty
+  public String getBase64() {
+    if (characteristic == null){
+        return null;
+    } else {
+      if (characteristic.getValue() == null){
+        return null;
+      } else {
+        return Base64.encodeToString(characteristic.getValue(), Base64.NO_WRAP);
+      }
     }
   }
 

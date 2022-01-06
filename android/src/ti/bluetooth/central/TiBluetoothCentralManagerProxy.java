@@ -90,7 +90,11 @@ public class TiBluetoothCentralManagerProxy
 
   @Kroll.method
   public void stopScan() {
-    bluetoothAdapter.getBluetoothLeScanner().stopScan(scanCallback);
+
+    if (bluetoothAdapter.getBluetoothLeScanner() != null) {
+      bluetoothAdapter.getBluetoothLeScanner().stopScan(scanCallback);
+    }
+
     isScanning = false;
   }
 
