@@ -53,7 +53,12 @@ public class TiBluetoothPeripheralProxy extends KrollProxy {
                     final boolean notifyOnDisconnection,
                     final OnPeripheralConnectionStateChangedListener
                         onPeripheralConnectionStateChangedListener) {
-      bluetoothDevice.connectGatt(context, true, new BluetoothGattCallback() {
+      
+      if (bluetoothGatt != null) {
+        disconnectPeripheral();
+      }
+
+      bluetoothDevice.connectGatt(context, false, new BluetoothGattCallback() {
       @Override
       public void onConnectionStateChange(BluetoothGatt gatt, int status,
                                           int newState) {
