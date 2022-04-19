@@ -35,6 +35,7 @@ public class TiBluetoothPeripheralProxy extends KrollProxy {
   private static final String DID_READ_VALUE_FOR_CHARACTERISTIC =
       "didReadValueForCharacteristic";
   private static final String SERVICE_KEY = "service";
+  private static final String DID_UPDATE_VALUE_FOR_CHARACTERISTIC_BYTES = "didUpdateValueForCharacteristicBytes";
 
   private BluetoothDevice bluetoothDevice;
   private BluetoothGatt bluetoothGatt;
@@ -52,7 +53,7 @@ public class TiBluetoothPeripheralProxy extends KrollProxy {
                     final boolean notifyOnDisconnection,
                     final OnPeripheralConnectionStateChangedListener
                         onPeripheralConnectionStateChangedListener) {
-      bluetoothDevice.connectGatt(context, false, new BluetoothGattCallback() {
+      bluetoothDevice.connectGatt(context, true, new BluetoothGattCallback() {
       @Override
       public void onConnectionStateChange(BluetoothGatt gatt, int status,
                                           int newState) {
@@ -117,10 +118,10 @@ public class TiBluetoothPeripheralProxy extends KrollProxy {
           if (data != null && data.length > 0) {
               final StringBuilder stringBuilder = new StringBuilder(data.length);
               for(byte byteChar : data) {
-                stringBuilder.append(String.format("%02X ", byteChar));
+                stringBuilder.append(String.format("%02X", byteChar));
               }
 
-              Log.d("Read", stringBuilder.toString());
+              Log.d("onCharacteristicRead", stringBuilder.toString());
           }
       }
 
@@ -138,10 +139,13 @@ public class TiBluetoothPeripheralProxy extends KrollProxy {
         if (data != null && data.length > 0) {
             final StringBuilder stringBuilder = new StringBuilder(data.length);
             for(byte byteChar : data) {
-              stringBuilder.append(String.format("%02X ", byteChar));
+              stringBuilder.append(String.format("%02X", byteChar));
             }
 
-            Log.d("Changed", stringBuilder.toString());
+            KrollDict kd = new KrollDict();
+            kd.put("bytes", stringBuilder.toString());
+            Log.d("onCharacteristicChanged", stringBuilder.toString());
+            fireEvent(DID_UPDATE_VALUE_FOR_CHARACTERISTIC_BYTES, kd);
         }
       }
     });
