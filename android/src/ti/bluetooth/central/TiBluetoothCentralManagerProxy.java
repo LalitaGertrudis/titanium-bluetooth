@@ -58,7 +58,7 @@ public class TiBluetoothCentralManagerProxy
     this.context = context;
     this.bluetoothAdapter = bluetoothAdapter;
     this.bluetoothState = bluetoothAdapter.getState();
-    this.scanMode = ScanSettings.SCAN_MODE_BALANCED;
+    this.scanMode = ScanSettings.SCAN_MODE_LOW_POWER;
 
     IntentFilter intentFilter = new IntentFilter();
     intentFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);

@@ -54,9 +54,7 @@ public class TiBluetoothPeripheralProxy extends KrollProxy {
                     final OnPeripheralConnectionStateChangedListener
                         onPeripheralConnectionStateChangedListener) {
       
-      if (bluetoothGatt != null) {
-        disconnectPeripheral();
-      }
+      
 
       bluetoothDevice.connectGatt(context, false, new BluetoothGattCallback() {
       @Override
@@ -73,13 +71,20 @@ public class TiBluetoothPeripheralProxy extends KrollProxy {
                       TiBluetoothPeripheralProxy.this);
             }
           } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+            if (bluetoothGatt != null) {
+              disconnectPeripheral();
+            }
+
             if (notifyOnDisconnection) {
               onPeripheralConnectionStateChangedListener
                   .onPeripheralConnectionStateDisconnected(
                       TiBluetoothPeripheralProxy.this);
-            }
+            } 
           }
         } else {
+          if (bluetoothGatt != null) {
+            disconnectPeripheral();
+          }
           onPeripheralConnectionStateChangedListener
               .onPeripheralConnectionStateError(
                   TiBluetoothPeripheralProxy.this);
